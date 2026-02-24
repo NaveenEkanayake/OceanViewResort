@@ -1,0 +1,44 @@
+/* Unique wrapper for the whole page - Match Employee Dashboard */
+.ov-payment-page {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    display: flex; /* Keeps Sidebar and Content-Wrapper aligned */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Ensure the content-wrapper doesn't hide the background */
+.content-wrapper {
+    flex: 1;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Glassmorphism effect for cards */
+.ov-card-custom {
+    background: rgba(33, 37, 41, 0.85) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+}
+
+/* Payment container styling */
+.payment-container {
+    padding: 20px;
+}
+
+/* Responsive sidebar adjustment */
+@media (max-width: 768px) {
+    .ov-payment-page {
+        flex-direction: column;
+    }
+    .content-wrapper {
+        padding: 10px;
+    }
+}

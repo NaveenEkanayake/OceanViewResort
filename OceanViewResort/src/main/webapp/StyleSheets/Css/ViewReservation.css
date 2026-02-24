@@ -1,0 +1,138 @@
+/* Location: ../StyleSheets/Css/ViewReservation.css */
+
+.view-res-page-bg {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+<<<<<<< HEAD
+/* Glass UI Container */
+=======
+/* Glass UI for the Table Container */
+>>>>>>> 268822243446ff4583af457f7ead3f8d8d504074
+.view-res-card {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+<<<<<<< HEAD
+    margin-bottom: 3rem;
+}
+
+/* Global Table Styles */
+.view-res-table {
+    color: #ffffff !important;
+    width: 100%;
+}
+
+/* Force Headers to Pure White and override Bootstrap Blue */
+.view-res-table thead th {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 1.25rem;
+    border: none !important;
+}
+
+/* Force Table Body Cells to White */
+.view-res-table tbody td {
+    color: #ffffff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 1rem;
+    background: transparent !important;
+    vertical-align: middle;
+}
+
+#resTableBody tr td {
+    color: white !important;
+}
+/* Override any Primary/Info Blue text (like your Res ID) */
+.view-res-table .text-primary, 
+.view-res-table .text-info,
+.text-white {
+    color: #ffffff !important;
+}
+
+/* Custom Glass Badge for Room Type */
+.view-res-table .badge {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding: 0.5rem 0.8rem;
+    font-weight: 400;
+}
+
+/* Spinners Fix */
+.spinner-grow.text-white {
+    background-color: #ffffff !important;
+=======
+}
+
+.view-res-table {
+    color: white !important;
+}
+
+.view-res-table thead th {
+    background: rgba(255, 255, 255, 0.15);
+    color: #0dcaf0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 15px;
+    border: none;
+}
+
+.view-res-table tbody td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    background: transparent !important;
+>>>>>>> 268822243446ff4583af457f7ead3f8d8d504074
+}
+
+.view-res-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Modal Glass Effect */
+.glass-modal {
+<<<<<<< HEAD
+    background: rgba(30, 30, 30, 0.8) !important;
+=======
+    background: rgba(30, 30, 30, 0.85) !important;
+>>>>>>> 268822243446ff4583af457f7ead3f8d8d504074
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+}
+
+<<<<<<< HEAD
+.toast-container {
+    z-index: 2000 !important; /* As requested */
+}
+
+/* Layout Adjustments */
+.content-wrapper {
+    transition: margin 0.3s ease;
+    padding-left: 20px;
+    padding-right: 20px;
+=======
+/* Adjust content based on Sidebar */
+.content-wrapper {
+    transition: margin 0.3s ease;
+>>>>>>> 268822243446ff4583af457f7ead3f8d8d504074
+}
+
+@media (max-width: 992px) {
+    .view-res-card {
+        padding: 1rem;
+    }
+}

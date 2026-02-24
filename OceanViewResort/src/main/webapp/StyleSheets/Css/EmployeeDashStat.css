@@ -1,0 +1,41 @@
+.payment-stats-container {
+    padding: 10px 0;
+}
+
+/* Filter Bar Styling */
+.filter-bar .btn-group {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-filter {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-filter.active, .btn-filter:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Glassmorphism Card for Chart */
+.payment-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+canvas {
+    max-height: 400px;
+    width: 100% !important;
+}

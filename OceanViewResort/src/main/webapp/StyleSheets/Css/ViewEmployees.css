@@ -1,0 +1,151 @@
+/* --- Admin View Employees Specific Styles --- */
+
+/* Root Layout: Deep Charcoal Background */
+.resort-admin-content-viewport {
+    margin-left: var(--sidebar-width, 260px);
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    background-color: #0c0c0c !important; /* Deepest black for the page */
+    padding-bottom: 2rem;
+}
+
+.sidebar-is-collapsed .resort-admin-content-viewport {
+    margin-left: var(--sidebar-collapsed-width, 80px);
+}
+
+/* --- Table Card Container --- */
+.resort-admin-table-container {
+    background: #181818 !important; /* Charcoal card background */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+/* --- Custom Table Styling --- */
+.resort-admin-custom-table {
+    color: #ffffff !important;
+    margin-bottom: 0;
+    background-color: transparent !important;
+}
+
+/* Header styling: Dark and subtle */
+.resort-admin-custom-table thead th {
+    background: rgba(255, 255, 255, 0.02) !important;
+    color: #888888;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    padding: 20px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-top: none !important;
+}
+
+/* Body cell styling: Transparent backgrounds to show card color */
+.resort-admin-custom-table tbody td {
+    padding: 16px 18px;
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    border-top: none !important;
+}
+
+/* --- Row Interaction: Subtle Glow/Highlight --- */
+.resort-admin-table-row {
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.resort-admin-table-row:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+    cursor: default;
+}
+
+/* --- UI Components --- */
+
+/* Avatar: Circular with resort blue gradient */
+.resort-admin-user-avatar {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #0d6efd, #0043a8);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Muted text for secondary info (Contact/Position) */
+.resort-admin-text-muted {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 0.9rem;
+}
+
+/* Blue meta-text for mobile view */
+.resort-admin-mobile-meta {
+    color: #0dcaf0;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* --- Status Pill --- */
+.resort-admin-status-pill {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.pill-active {
+    background: rgba(46, 204, 113, 0.1) !important;
+    color: #2ecc71 !important;
+    border: 1px solid rgba(46, 204, 113, 0.2) !important;
+}
+
+.pill-inactive {
+    background: rgba(255, 77, 77, 0.1) !important;
+    color: #ff4d4d !important;
+    border: 1px solid rgba(255, 77, 77, 0.2) !important;
+}
+
+/* --- Action Buttons --- */
+.resort-admin-action-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #aaaaaa;
+    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+}
+
+.resort-admin-action-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-edit:hover { color: #0dcaf0 !important; border-color: #0dcaf0; }
+.btn-delete:hover { color: #ff4d4d !important; border-color: #ff4d4d; }
+.btn-view:hover { color: #20c997 !important; border-color: #20c997; }
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .resort-admin-content-viewport {
+        margin-left: 0 !important;
+        padding: 10px;
+    }
+    
+    .resort-admin-custom-table thead th {
+        padding: 12px;
+    }
+}

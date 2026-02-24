@@ -1,0 +1,30 @@
+/* Unique Styles for Employee Dashboard */
+
+.emp-dash-body {
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    display: flex; /* Keeps Sidebar and Content-Wrapper aligned */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.content-wrapper {
+    flex: 1;
+    width: 100%;
+    /* This ensures content is readable over the background */
+    background: rgba(0, 0, 0, 0.2); 
+    min-height: 100vh;
+}
+
+/* Glassmorphism effect for the Payment Statistics section header */
+h1, h2 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+hr {
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+}

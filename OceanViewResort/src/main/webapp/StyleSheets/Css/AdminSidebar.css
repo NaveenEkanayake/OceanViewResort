@@ -1,0 +1,144 @@
+/* --- Unique Admin Sidebar Theme --- */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --bg-charcoal: #181818;
+    --hover-grey: rgba(255, 255, 255, 0.1);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --transition-speed: 0.3s;
+    --sidebar-box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+#admin-sidebar {
+    background-color: var(--bg-charcoal) !important;
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0; left: 0; z-index: 1050;
+    transition: all var(--transition-speed) ease;
+    border-right: 1px solid var(--border-color);
+    box-shadow: var(--sidebar-box-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Base Link Styles */
+.admin-link-item, .admin-sub-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: white !important;
+    text-decoration: none !important;
+    transition: background var(--transition-speed);
+    cursor: pointer;
+}
+
+.admin-link-item:hover, .admin-sub-link:hover {
+    background-color: var(--hover-grey) !important;
+}
+
+.admin-icon {
+    width: 25px;
+    text-align: center;
+    margin-right: 15px;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+/* --- Collapsed Logic --- */
+.sidebar-is-collapsed #admin-sidebar {
+    width: var(--sidebar-collapsed-width) !important;
+    box-shadow: 5px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-is-collapsed .admin-link-item,
+.sidebar-is-collapsed .admin-sub-link {
+    padding: 15px 0 !important;
+    justify-content: center !important; /* Forces icon to the horizontal center of the 80px */
+}
+
+.sidebar-is-collapsed .admin-icon {
+    margin-right: 0 !important;
+    font-size: 22px;
+    width: 100%;
+}
+
+/* Hide everything but icons */
+.sidebar-is-collapsed .admin-link-text,
+.sidebar-is-collapsed .admin-resort-text,
+.sidebar-is-collapsed .admin-profile-info,
+.sidebar-is-collapsed .admin-chevron,
+.sidebar-is-collapsed .admin-edit-profile {
+    display: none !important;
+}
+
+/* --- Content Wrapper --- */
+.admin-content-wrapper {
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-speed) ease;
+    background-color: #121212;
+    min-height: 100vh;
+}
+
+.sidebar-is-collapsed .admin-content-wrapper {
+    margin-left: var(--sidebar-collapsed-width) !important;
+}
+
+.admin-chevron {
+    transition: transform var(--transition-speed) ease;
+    min-width: 16px;
+    text-align: center;
+}
+
+/* Added via JS when the menu is active */
+.admin-chevron.rotated {
+    transform: rotate(90deg);
+}
+
+/* Toggle button rotation animation */
+#toggleBtn {
+    transition: transform 0.3s ease;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+#toggleBtn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.05);
+}
+
+#toggleBtn.rotate-icon {
+    transform: rotate(180deg);
+}
+
+#toggleBtn.rotate-icon:hover {
+    transform: rotate(180deg) scale(1.05);
+}
+
+/* --- Submenu Animation --- */
+.admin-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0;
+}
+
+/* Added via JS to expand the list */
+.admin-submenu.show {
+    max-height: 200px;
+    opacity: 1;
+}
+.admin-sub-link {
+    padding-left: 55px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7) !important;
+    transition: all 0.2s ease;
+}
+
+.admin-sub-link:hover {
+    color: rgba(255,255,255,0.9) !important;
+    padding-left: 60px;
+}

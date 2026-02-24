@@ -1,0 +1,97 @@
+package WEB;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import DAO.AdminLoginDAO;
+import Model.AdminLogin;
+
+@WebServlet("/AdminServlet")
+public class AdminLoginServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private AdminLoginDAO adminDAO = new AdminLoginDAO();
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        
+        if ("logout".equals(action)) {
+            // Clear admin cookie
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("adminUser".equals(cookie.getName())) {
+                        cookie.setMaxAge(0);
+                        cookie.setPath("/");
+                        response.addCookie(cookie);
+                        break;
+                    }
+                }
+            }
+            response.sendRedirect("Pages/AdminLogin.jsp?success=logout");
+        } else {
+            response.sendRedirect("Pages/AdminLogin.jsp");
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        String action = request.getParameter("action");
+
+        if ("login".equals(action)) {
+            handleLogin(request, response);
+        } else if ("register".equals(action)) {
+            handleRegistration(request, response);
+        } else {
+            response.sendRedirect("Pages/AdminLogin.jsp");
+        }
+    }
+
+    private void handleLogin(HttpServletRequest request, HttpServletResponse response) 
+            throws IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        
+        if (adminDAO.validateAdmin(username, password)) {
+            // Success: Set Cookie
+            Cookie adminCookie = new Cookie("adminUser", username);
+            adminCookie.setMaxAge(60 * 60); // 1 hour session
+            adminCookie.setPath("/"); 
+            response.addCookie(adminCookie);
+            
+            response.sendRedirect("Pages/AdminLogin.jsp?success=login");
+        } else {
+            // Fail: Error parameter
+            response.sendRedirect("Pages/AdminLogin.jsp?error=login_fail");
+        }
+    }
+
+    private void handleRegistration(HttpServletRequest request, HttpServletResponse response) 
+            throws IOException {
+        String uname = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        
+        // Simple validation
+        if (uname == null || uname.trim().isEmpty()) {
+            response.sendRedirect("Pages/AdminLogin.jsp?error=reg_fail");
+            return;
+        }
+
+        AdminLogin admin = new AdminLogin(uname, email, password);
+        String result = adminDAO.registerAdmin(admin);
+        
+        if (result.contains("successfully")) {
+            response.sendRedirect("Pages/AdminLogin.jsp?success=registered");
+        } else {
+            // Could be "Username exists" or a DB error
+            response.sendRedirect("Pages/AdminLogin.jsp?error=reg_fail");
+        }
+    }
+}

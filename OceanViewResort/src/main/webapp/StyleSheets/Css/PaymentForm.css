@@ -1,0 +1,153 @@
+/* Payment Form Specific Styles - Match Employee Dashboard */
+
+/* Page body styling to match Employee Dashboard */
+body {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* Payment container - no margin needed with flex layout */
+.payment-container {
+    padding: 20px;
+    flex: 1;
+}
+
+/* Payment form container styling */
+#paymentFormContainer {
+    background: rgba(33, 37, 41, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Reservation details section */
+.payment-details-card {
+    background: rgba(108, 117, 125, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Form input styling */
+.form-control.bg-dark {
+    background-color: #212529 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.form-control.bg-dark:focus {
+    background-color: #212529 !important;
+    border-color: #0dcaf0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+    color: white;
+}
+
+/* Payment tabs styling */
+.nav-tabs .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0dcaf0;
+    color: #000;
+    border-color: #0dcaf0;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+/* Tab content styling */
+.tab-pane {
+    padding: 20px 0;
+}
+
+/* Payment calculation display */
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.15);
+    border: 1px solid rgba(13, 202, 240, 0.3);
+    color: #0dcaf0;
+}
+
+/* Success toast styling - GREEN */
+.payment-toast-success {
+    background-color: #198754 !important; /* Bootstrap success green */
+    border-left: 4px solid #157347;
+}
+
+/* Error toast styling */
+.payment-toast-error {
+    background-color: #dc3545 !important;
+    border-left: 4px solid #bb2d3b;
+}
+
+/* Info toast styling */
+.payment-toast-info {
+    background-color: #0dcaf0 !important;
+    border-left: 4px solid #0aa2c0;
+}
+
+/* Warning toast styling */
+.payment-toast-warning {
+    background-color: #ffc107 !important;
+    border-left: 4px solid #ffb000;
+    color: #000 !important;
+}
+
+.payment-toast-warning .btn-close {
+    filter: invert(1);
+}
+
+/* Change amount styling */
+.payment-change-amount {
+    color: #198754 !important;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .payment-container {
+        margin-left: 0 !important;
+        padding: 10px;
+    }
+    
+    .payment-details-card {
+        padding: 15px;
+    }
+    
+    .tab-pane {
+        padding: 15px 0;
+    }
+    
+    .nav-link span.d-none.d-sm-inline {
+        display: none !important;
+    }
+}
+
+/* Loading spinner for payment form */
+.payment-form-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.payment-form-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Animation for view transitions */
+.view-fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

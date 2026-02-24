@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xmlns="https://jakarta.ee/xml/ns/jakartaee" 
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" 
+         version="5.0">
+         
+  <display-name>Ocean_Resort</display-name>
+
+  <servlet>
+    <servlet-name>NewReservationServlet</servlet-name>
+    <servlet-class>WEB.ReservationServelet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>NewReservationServlet</servlet-name>
+    <url-pattern>/NewReservation</url-pattern>
+  </servlet-mapping>
+
+  <!-- EmployeeServlet is mapped via @WebServlet annotation -->
+
+  <welcome-file-list>
+    <welcome-file>Pages/MakeReservation.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>

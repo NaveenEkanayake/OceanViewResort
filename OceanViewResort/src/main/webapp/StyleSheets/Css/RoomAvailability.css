@@ -1,0 +1,71 @@
+/* Isolated container for the component */
+.room-status-wrapper {
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* Unique card classes */
+.room-status-glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 18px;
+    padding: 22px;
+    text-align: center;
+    transition: transform 0.3s ease, background 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    height: 100%;
+}
+
+.room-status-glass-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Unique Icon and Text classes */
+.room-status-icon-box {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.room-status-val-display {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 5px 0;
+}
+
+.room-status-label-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Progress bar specific unique classes */
+.room-status-prog-track {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    height: 10px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.room-status-prog-fill {
+    height: 100%;
+    border-radius: 50px;
+    width: 0%; /* Will be animated by RoomAvailability.js */
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Color Palette */
+.room-status-clr-single { color: #0dcaf0; }
+.room-status-clr-double { color: #a275ff; } /* Lightened for better visibility on dark */
+.room-status-clr-suite { color: #ffc107; }
+
+.room-status-bg-single { background: #0dcaf0; box-shadow: 0 0 15px rgba(13, 202, 240, 0.5); }
+.room-status-bg-double { background: #6610f2; box-shadow: 0 0 15px rgba(102, 16, 242, 0.5); }
+.room-status-bg-suite { background: #ffc107; box-shadow: 0 0 15px rgba(255, 193, 7, 0.5); }

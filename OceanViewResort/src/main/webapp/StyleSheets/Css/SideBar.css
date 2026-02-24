@@ -1,0 +1,101 @@
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+}
+
+#sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    transition: width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    color: white;
+    z-index: 1000;
+}
+
+#sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+.sidebar-is-collapsed #sidebar { 
+    width: var(--sidebar-collapsed-width) !important; 
+}
+.sidebar-is-collapsed .content-wrapper { 
+    margin-left: var(--sidebar-collapsed-width) !important; 
+}
+
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 75px;
+}
+
+#toggleBtn {
+    background-color: white !important;
+    color: #333 !important;
+    border-radius: 8px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.4s ease;
+    border: none;
+    cursor: pointer;
+}
+
+#toggleBtn.rotate-icon { transform: rotate(180deg); }
+
+.profile-area { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.profile-area i { font-size: 40px; }
+.edit-profile { font-size: 12px; color: #ccc; text-decoration: none; display: block; margin-top: 5px; }
+
+.nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-x: hidden; }
+
+.nav-link-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: 700; 
+    transition: background 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.nav-link-item:hover { background-color: rgba(211, 211, 211, 0.2); color: white; }
+.nav-link-item i { width: 30px; font-size: 18px; min-width: 30px; }
+
+.submenu {
+    list-style: none;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.2);
+    display: none; 
+}
+.submenu.show { display: block; }
+.sub-link { padding-left: 50px; font-size: 14px; font-weight: 600; }
+
+.chevron-icon { margin-left: auto; transition: transform 0.3s; font-size: 12px; }
+.rotated { transform: rotate(90deg); }
+.content-wrapper {
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    width: auto;
+}
+
+#sidebar.collapsed ~ .content-wrapper { 
+    margin-left: var(--sidebar-collapsed-width); 
+}
+.collapsed .link-text, 
+.collapsed .resort-text, 
+.collapsed .profile-info, 
+.collapsed .chevron-icon,
+.collapsed .submenu { 
+    display: none !important; 
+}

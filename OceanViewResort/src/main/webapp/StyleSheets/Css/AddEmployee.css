@@ -1,0 +1,93 @@
+/* --- Root & Layout --- */
+.ae-viewport-wrapper {
+    margin-left: var(--sidebar-width, 260px);
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    background-color: #121212;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-is-collapsed .ae-viewport-wrapper {
+    margin-left: var(--sidebar-collapsed-width, 80px);
+}
+
+/* --- Form Container --- */
+.ae-form-container {
+    background: #181818;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.ae-form-header {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.25rem;
+    color: #fff;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ae-form-body { padding: 2rem; }
+
+.ae-form-label {
+    color: #ccc;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.ae-form-input {
+    width: 100%;
+    padding: 12px;
+    background: #252525 !important;
+    border: 1px solid #444;
+    border-radius: 10px;
+    color: white !important;
+    transition: 0.3s;
+}
+
+.ae-form-input:focus {
+    border-color: #000080;
+    outline: none;
+}
+
+/* --- Unique Navy Blue Button --- */
+.ae-navy-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #000080; /* Navy Blue */
+    color: white !important;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ae-navy-btn:hover {
+    background: #0000a5;
+    transform: translateY(-2px);
+}
+
+.ae-cancel-link {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    color: #888;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.ae-cancel-link:hover { color: #fff; }
+
+/* --- Mobile Logic --- */
+@media (max-width: 768px) {
+    .ae-viewport-wrapper { margin-left: 0 !important; }
+}

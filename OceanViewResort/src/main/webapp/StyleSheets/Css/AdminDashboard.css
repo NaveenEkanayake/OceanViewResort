@@ -1,0 +1,98 @@
+/* --- Global Theme: Charcoal & White --- */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll during transition */
+}
+
+/* --- Content Wrapper Logic --- */
+.admin-content-wrapper {
+    background-color: #121212;
+    min-height: 100vh;
+    padding: 20px;
+    /* This automatically pushes content to the right of the fixed sidebar */
+    margin-left: var(--sidebar-width); 
+    transition: margin-left var(--transition-speed) ease;
+    width: auto;
+}
+
+/* When the body has this class (toggled via JS), shrink the margin */
+.sidebar-is-collapsed .admin-content-wrapper {
+    margin-left: var(--sidebar-collapsed-width) !important;
+}
+
+/* --- Fixed Sidebar Height & Scroll --- */
+#admin-sidebar {
+    background-color: #181818 !important;
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: width var(--transition-speed) ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    overflow-x: hidden;
+    overflow-y: auto; /* Enable scrolling if menu items exceed height */
+}
+
+/* Collapsed State for Sidebar */
+.sidebar-is-collapsed #admin-sidebar {
+    width: var(--sidebar-collapsed-width) !important;
+}
+
+/* --- Stats Cards --- */
+.stat-card {
+    border-radius: 16px !important;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Accent Gradients */
+.bg-primary { background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%) !important; }
+.bg-success { background: linear-gradient(135deg, #198754 0%, #0f5132 100%) !important; }
+.bg-warning { background: linear-gradient(135deg, #ffc107 0%, #997404 100%) !important; color: #fff !important; }
+
+/* --- Chart UI --- */
+.card {
+    background: #1e1e1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    margin-top: 30px;
+}
+
+/* Submenu animations */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.submenu.show {
+    max-height: 500px; 
+}
+
+/* --- Scrollbar Styling --- */
+#admin-sidebar::-webkit-scrollbar { width: 4px; }
+#admin-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
