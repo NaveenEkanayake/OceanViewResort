@@ -163,6 +163,46 @@
                 }
             }
         });
+        
+        // Load real data from server
+        loadChartData('weekly');
+    }
+    
+    function loadChartData(timeframe) {
+        fetch('${pageContext.request.contextPath}/PaymentServlet?action=getPaymentStats&timeframe=' + timeframe)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.chartData) {
+                    // Update the chart data object
+                    const newData = {
+                        labels: data.chartData.labels,
+                        datasets: [{
+                            label: data.chartData.label,
+                            data: data.chartData.data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        }]
+                    };
+                    
+                    // Update the stored data objects based on current filter
+                    if (timeframe === 'weekly') {
+                        weeklyData = newData;
+                    } else if (timeframe === 'monthly') {
+                        monthlyData = newData;
+                    } else if (timeframe === 'yearly') {
+                        yearlyData = newData;
+                    }
+                    
+                    // Update the chart
+                    paymentChart.data = newData;
+                    paymentChart.update();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading chart data:', error);
+            });
     }
 
     function filterPayments(filter) {
@@ -172,16 +212,8 @@
         });
         event.target.classList.add('active');
 
-        // Update chart data based on filter
-        if (filter === 'weekly') {
-            paymentChart.data = weeklyData;
-        } else if (filter === 'monthly') {
-            paymentChart.data = monthlyData;
-        } else if (filter === 'yearly') {
-            paymentChart.data = yearlyData;
-        }
-
-        paymentChart.update();
+        // Load real data from server for the selected filter
+        loadChartData(filter);
         currentFilter = filter;
     }
 
