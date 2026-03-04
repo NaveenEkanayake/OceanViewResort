@@ -59,7 +59,7 @@
     </ul>
 
     <div class="logout-box">
-        <a href="logout.jsp" class="nav-link-item text-danger">
+        <a href="${pageContext.request.contextPath}/LoginServlet?action=logout" class="nav-link-item text-danger">
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="link-text">Logout</span>
         </a>

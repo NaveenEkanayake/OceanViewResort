@@ -10,8 +10,8 @@ import java.util.List;
 public class EmployeeDAO {
     
     // Add new employee with auto-generated credentials
-    public boolean addEmployee(Employee employee, String username, String hashedPassword) {
-        String employeeQuery = "INSERT INTO employees (firstName, lastName, email, phone, position, salary) VALUES (?, ?, ?, ?, ?, ?)";
+    public boolean addEmployee(Employee employee, String username, String hashedPassword, String createdBy) {
+        String employeeQuery = "INSERT INTO employees (firstName, lastName, email, phone, position, salary, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String loginQuery = "INSERT INTO employee_login (employeeId, username, password) VALUES (?, ?, ?)";
         
         Connection conn = null;
@@ -30,6 +30,7 @@ public class EmployeeDAO {
             empStmt.setString(4, employee.getPhone());
             empStmt.setString(5, employee.getPosition());
             empStmt.setBigDecimal(6, employee.getSalary());
+            empStmt.setString(7, createdBy);
             
             int affectedRows = empStmt.executeUpdate();
             if (affectedRows == 0) throw new SQLException("Creating employee failed.");
@@ -62,6 +63,7 @@ public class EmployeeDAO {
         }
     }
     
+    // Get all employees (for admin use - filtered by creator)
     public List<Employee> getAllEmployees() {
         List<Employee> employees = new ArrayList<>();
         String query = "SELECT e.*, el.username, el.isActive AS is_active FROM employees e " +
@@ -78,6 +80,26 @@ public class EmployeeDAO {
         }
         return employees;
     }
+    
+    // Get employees created by a specific admin
+    public List<Employee> getEmployeesByCreator(String createdBy) {
+        List<Employee> employees = new ArrayList<>();
+        String query = "SELECT e.*, el.username, el.isActive AS is_active FROM employees e " +
+                       "LEFT JOIN employee_login el ON e.employeeId = el.employeeId " +
+                       "WHERE e.created_by = ? ORDER BY e.employeeId DESC";
+        
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, createdBy);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                employees.add(mapResultSetToEmployee(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return employees;
+    }
 
     public Employee getEmployeeById(int employeeId) {
         String query = "SELECT e.*, el.username, el.isActive AS is_active FROM employees e " +
@@ -85,6 +107,21 @@ public class EmployeeDAO {
         try (Connection conn = DBConnect.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, employeeId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapResultSetToEmployee(rs);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+    
+    // Get employee by ID only if created by specific admin
+    public Employee getEmployeeByIdAndCreator(int employeeId, String createdBy) {
+        String query = "SELECT e.*, el.username, el.isActive AS is_active FROM employees e " +
+                       "LEFT JOIN employee_login el ON e.employeeId = el.employeeId " +
+                       "WHERE e.employeeId = ? AND e.created_by = ?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, employeeId);
+            stmt.setString(2, createdBy);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) return mapResultSetToEmployee(rs);
         } catch (SQLException e) { e.printStackTrace(); }
@@ -195,6 +232,59 @@ public class EmployeeDAO {
             System.out.println("=== hardDeleteEmployee END ===");
         }
     }
+    
+    // Delete employee only if created by specific admin
+    public boolean hardDeleteEmployeeByCreator(int employeeId, String createdBy) {
+        System.out.println("=== hardDeleteEmployeeByCreator START ===");
+        System.out.println("Attempting to delete employee with ID: " + employeeId + " created by: " + createdBy);
+        
+        Connection conn = null;
+        PreparedStatement stmt1 = null;
+        PreparedStatement stmt2 = null;
+        try {
+            conn = DBConnect.getConnection();
+            if (conn == null) {
+                System.err.println("Failed to get database connection");
+                return false;
+            }
+            
+            conn.setAutoCommit(false);
+            
+            // First delete from employee_login table (only if employee belongs to this admin)
+            stmt1 = conn.prepareStatement("DELETE el FROM employee_login el " +
+                                         "INNER JOIN employees e ON el.employeeId = e.employeeId " +
+                                         "WHERE el.employeeId = ? AND e.created_by = ?");
+            stmt1.setInt(1, employeeId);
+            stmt1.setString(2, createdBy);
+            int loginResult = stmt1.executeUpdate();
+            System.out.println("Deleted " + loginResult + " rows from employee_login");
+            
+            // Then delete from employees table only if created_by matches
+            stmt2 = conn.prepareStatement("DELETE FROM employees WHERE employeeId = ? AND created_by = ?");
+            stmt2.setInt(1, employeeId);
+            stmt2.setString(2, createdBy);
+            int result = stmt2.executeUpdate();
+            System.out.println("Deleted " + result + " rows from employees");
+            
+            conn.commit();
+            System.out.println("Delete transaction committed successfully");
+            return result > 0;
+        } catch (SQLException e) {
+            System.err.println("SQL Error in hardDeleteEmployeeByCreator: " + e.getMessage());
+            e.printStackTrace();
+            if (conn != null) {
+                try { 
+                    conn.rollback(); 
+                } catch (SQLException ex) { 
+                    ex.printStackTrace(); 
+                }
+            }
+            return false;
+        } finally {
+            closeResources(conn, stmt1, stmt2, null);
+            System.out.println("=== hardDeleteEmployeeByCreator END ===");
+        }
+    }
 
     public boolean isEmailExists(String email) {
         String query = "SELECT COUNT(*) FROM employees WHERE email = ?";
@@ -244,6 +334,7 @@ public class EmployeeDAO {
         employee.setSalary(rs.getBigDecimal("salary"));
         employee.setHireDate(rs.getTimestamp("hireDate"));
         employee.setStatus(rs.getString("status"));
+        employee.setCreatedBy(rs.getString("created_by"));
         
         // Handle optional login fields
         employee.setUsername(rs.getString("username"));

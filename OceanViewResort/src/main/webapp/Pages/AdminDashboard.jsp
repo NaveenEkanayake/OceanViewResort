@@ -1,4 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="jakarta.servlet.http.Cookie" %>
+<%
+    // Check if admin is logged in via cookie
+    boolean isAdminLoggedIn = false;
+    String adminUsername = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("adminUser".equals(cookie.getName())) {
+                isAdminLoggedIn = true;
+                adminUsername = cookie.getValue();
+                break;
+            }
+        }
+    }
+    if (!isAdminLoggedIn) {
+        response.sendRedirect("AdminLogin.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -15,6 +15,7 @@ public class Employee {
     private String status = "ACTIVE";
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String createdBy;
     
     // Login credentials (from employee_login table)
     private String username;
@@ -123,6 +124,14 @@ public class Employee {
     
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public String getCreatedBy() {
+        return createdBy;
+    }
+    
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
     
     // Login credentials getters and setters

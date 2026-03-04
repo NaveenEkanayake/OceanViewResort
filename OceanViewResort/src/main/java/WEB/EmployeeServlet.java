@@ -6,10 +6,12 @@ import util.CredentialGenerator;
 import util.EmailUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -74,7 +76,16 @@ public class EmployeeServlet extends HttpServlet {
     
     private void listEmployees(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        List<Employee> employees = employeeDAO.getAllEmployees();
+        // Get logged-in admin username from cookie
+        String adminUsername = getAdminUsernameFromCookie(request);
+        
+        // Get employees created by this admin only
+        List<Employee> employees;
+        if (adminUsername != null) {
+            employees = employeeDAO.getEmployeesByCreator(adminUsername);
+        } else {
+            employees = new ArrayList<>();
+        }
         request.setAttribute("employees", employees);
         request.getRequestDispatcher("/Pages/ViewEmployee.jsp").forward(request, response);
     }
@@ -112,6 +123,9 @@ public class EmployeeServlet extends HttpServlet {
                 return;
             }
             
+            // Get logged-in admin username from cookie
+            String createdBy = getAdminUsernameFromCookie(request);
+            
             Employee employee = new Employee(firstName, lastName, email, phone, position, salary);
             
             // Only generate login credentials for Receptionist position
@@ -132,7 +146,7 @@ public class EmployeeServlet extends HttpServlet {
                 }
             }
             
-            boolean success = employeeDAO.addEmployee(employee, username, hashedPassword);
+            boolean success = employeeDAO.addEmployee(employee, username, hashedPassword, createdBy);
             if (success) {
                 // Send welcome email with login credentials ONLY to Receptionist
                 if ("Receptionist".equalsIgnoreCase(position)) {
@@ -164,6 +178,16 @@ public class EmployeeServlet extends HttpServlet {
             String phone = request.getParameter("phone").trim();
             String position = request.getParameter("position").trim();
             BigDecimal salary = new BigDecimal(request.getParameter("salary").trim());
+            
+            // Get logged-in admin username
+            String adminUsername = getAdminUsernameFromCookie(request);
+            
+            // Verify this admin created this employee
+            Employee existingEmployee = employeeDAO.getEmployeeByIdAndCreator(employeeId, adminUsername);
+            if (existingEmployee == null) {
+                response.sendRedirect("EmployeeServlet?action=list&error=Employee not found or access denied");
+                return;
+            }
             
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || position.isEmpty()) {
                 response.sendRedirect("EmployeeServlet?action=edit&id=" + employeeId + "&error=All fields are required");
@@ -225,14 +249,19 @@ public class EmployeeServlet extends HttpServlet {
             System.out.println("Parsed employee ID: " + employeeId);
             
             System.out.println("About to get employee by ID");
-            Employee employee = employeeDAO.getEmployeeById(employeeId);
+            
+            // Get logged-in admin username
+            String adminUsername = getAdminUsernameFromCookie(request);
+            
+            // Only get employee if created by this admin
+            Employee employee = employeeDAO.getEmployeeByIdAndCreator(employeeId, adminUsername);
             System.out.println("Got employee: " + (employee != null ? employee.getFullName() : "null"));
             
             if (employee == null) {
-                System.out.println("Employee not found with ID: " + employeeId);
+                System.out.println("Employee not found with ID: " + employeeId + " or access denied");
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 java.io.PrintWriter out = response.getWriter();
-                out.print("{\"success\":false,\"message\":\"Employee not found with ID: " + employeeId + "\"}");
+                out.print("{\"success\":false,\"message\":\"Employee not found or access denied\"}");
                 out.flush();
                 return;
             }
@@ -240,9 +269,9 @@ public class EmployeeServlet extends HttpServlet {
             String employeeName = employee.getFullName();
             System.out.println("Employee name: " + employeeName);
             
-            System.out.println("About to call hardDeleteEmployee");
-            boolean deleteResult = employeeDAO.hardDeleteEmployee(employeeId);
-            System.out.println("hardDeleteEmployee result: " + deleteResult);
+            System.out.println("About to call hardDeleteEmployeeByCreator");
+            boolean deleteResult = employeeDAO.hardDeleteEmployeeByCreator(employeeId, adminUsername);
+            System.out.println("hardDeleteEmployeeByCreator result: " + deleteResult);
             System.out.println("=== DELETE EMPLOYEE METHOD END ===");
             
             if (deleteResult) {
@@ -309,18 +338,36 @@ public class EmployeeServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             int employeeId = Integer.parseInt(request.getParameter("id"));
-            Employee employee = employeeDAO.getEmployeeById(employeeId);
+            
+            // Get logged-in admin username
+            String adminUsername = getAdminUsernameFromCookie(request);
+            
+            // Only get employee if created by this admin
+            Employee employee = employeeDAO.getEmployeeByIdAndCreator(employeeId, adminUsername);
             
             if (employee != null) {
                 // Pass the entire object to the JSP
                 request.setAttribute("employee", employee);
                 request.getRequestDispatcher("/Pages/EditEmployee.jsp").forward(request, response);
             } else {
-                response.sendRedirect("EmployeeServlet?action=list&error=Employee not found");
+                response.sendRedirect("EmployeeServlet?action=list&error=Employee not found or access denied");
             }
         } catch (NumberFormatException e) {
             response.sendRedirect("EmployeeServlet?action=list&error=Invalid ID format");
         }
+    }
+    
+    // Helper method to get admin username from cookie
+    private String getAdminUsernameFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("adminUser".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     private String createWelcomeEmail(String firstName, String lastName, String username, String password) {
