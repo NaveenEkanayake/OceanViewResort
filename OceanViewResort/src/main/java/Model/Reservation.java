@@ -11,6 +11,7 @@ public class Reservation {
     private Date checkIn;
     private Date checkOut;
     private String status;
+    private String createdBy;
 
     // Default Constructor (Used for fetching from DB)
     public Reservation() {}
@@ -55,4 +56,7 @@ public class Reservation {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }

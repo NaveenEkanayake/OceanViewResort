@@ -93,4 +93,88 @@ public class CredentialGenerator {
     public static String generateEmployeeId(int databaseId) {
         return String.format("EMP%04d", databaseId);
     }
+    
+    // Generate professional HTML email for credentials
+    public static String generateCredentialsEmail(String firstName, String lastName, String username, String password, String position) {
+        String fullName = firstName + " " + lastName;
+        String loginUrl = "http://localhost:8080/Ocean_View/Pages/EmployeeLogin.jsp";
+        
+        return "<!DOCTYPE html>"
+            + "<html>"
+            + "<head>"
+            + "<style>"
+            + "body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }"
+            + ".container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }"
+            + ".header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }"
+            + ".header h1 { margin: 0; font-size: 24px; }"
+            + ".content { padding: 40px 30px; }"
+            + ".welcome { font-size: 18px; color: #333; margin-bottom: 20px; }"
+            + ".credentials-box { background-color: #f8f9fa; border-left: 4px solid #2a5298; padding: 20px; margin: 20px 0; border-radius: 5px; }"
+            + ".credential-item { margin: 15px 0; font-size: 16px; }"
+            + ".label { font-weight: bold; color: #555; display: inline-block; width: 100px; }"
+            + ".value { color: #2a5298; font-family: monospace; font-size: 18px; font-weight: bold; }"
+            + ".password { color: #d9534f; }"
+            + ".instructions { background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 20px 0; }"
+            + ".instructions h3 { margin-top: 0; color: #856404; }"
+            + ".instructions ul { margin: 10px 0; padding-left: 20px; }"
+            + ".instructions li { margin: 5px 0; color: #856404; }"
+            + ".login-button { text-align: center; margin: 30px 0; }"
+            + ".login-button a { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; }"
+            + ".footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #777; }"
+            + ".footer p { margin: 5px 0; }"
+            + "</style>"
+            + "</head>"
+            + "<body>"
+            + "<div class='container'>"
+            + "<div class='header'>"
+            + "<h1>🌊 Ocean View Resort</h1>"
+            + "<p>Welcome to Our Team!</p>"
+            + "</div>"
+            + "<div class='content'>"
+            + "<div class='welcome'>"
+            + "<p>Dear " + fullName + ",</p>"
+            + "<p>Congratulations! Your employee account has been successfully created for the <strong>Ocean View Resort Management System</strong>.</p>"
+            + "<p><strong>Position:</strong> " + position + "</p>"
+            + "</div>"
+            + "<div class='credentials-box'>"
+            + "<h3 style='margin-top: 0; color: #1e3c72;'>🔐 Your Login Credentials</h3>"
+            + "<div class='credential-item'>"
+            + "<span class='label'>Username:</span>"
+            + "<span class='value'>" + username + "</span>"
+            + "</div>"
+            + "<div class='credential-item'>"
+            + "<span class='label'>Password:</span>"
+            + "<span class='value password'>" + password + "</span>"
+            + "</div>"
+            + "</div>"
+            + "<div class='instructions'>"
+            + "<h3>⚠️ Important Security Instructions</h3>"
+            + "<ul>"
+            + "<li>Keep your credentials confidential and do not share with anyone.</li>"
+            + "<li>Change your password after your first login for enhanced security.</li>"
+            + "<li>Use a strong, unique password that includes letters, numbers, and symbols.</li>"
+            + "<li>Never access the system from public or unsecured networks.</li>"
+            + "<li>Log out properly when you finish your work session.</li>"
+            + "</ul>"
+            + "</div>"
+            + "<div class='login-button'>"
+            + "<a href='" + loginUrl + "'>Access Employee Portal</a>"
+            + "</div>"
+            + "<p style='color: #666; font-size: 14px;'>If you have any questions or need assistance, please contact the HR department or your system administrator.</p>"
+            + "</div>"
+            + "<div class='footer'>"
+            + "<p><strong>Ocean View Resort</strong></p>"
+            + "<p>123 Beach Road, Coastal City, Sri Lanka</p>"
+            + "<p>Email: hr@oceanviewresort.com | Phone: +94 11 234 5678</p>"
+            + "<p style='margin-top: 15px; font-size: 11px;'>This is an automated email. Please do not reply to this message.</p>"
+            + "</div>"
+            + "</div>"
+            + "</body>"
+            + "</html>";
+    }
+    
+    // Generate email subject line
+    public static String generateCredentialsEmailSubject(String firstName) {
+        return "🌊 Ocean View Resort - Your Employee Portal Credentials";
+    }
 }

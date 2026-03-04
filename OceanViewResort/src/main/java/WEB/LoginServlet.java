@@ -56,7 +56,8 @@ public class LoginServlet extends HttpServlet {
             employeeCookie.setPath("/"); 
             response.addCookie(employeeCookie);
             
-            response.sendRedirect("Pages/EmployeeLogin.jsp?success=login");
+            // Redirect to Employee Dashboard with success message
+            response.sendRedirect("Pages/EmployeeDashboard.jsp?success=login");
         } else {
             // Fail: Error parameter
             response.sendRedirect("Pages/EmployeeLogin.jsp?error=login_fail");
@@ -76,8 +77,26 @@ public class LoginServlet extends HttpServlet {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    String hashedPw = rs.getString("password");
-                    return BCrypt.checkpw(plainPassword, hashedPw);
+                    String storedHash = rs.getString("password");
+                    
+                    // Try BCrypt first (preferred method)
+                    try {
+                        if (BCrypt.checkpw(plainPassword, storedHash)) {
+                            return true;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        // Invalid BCrypt salt version - password might be SHA-256 or plain text
+                        System.out.println("BCrypt validation failed for user: " + username + ". Trying alternative methods.");
+                        
+                        // Fallback: Check if it's a SHA-256 hash (64 hex characters)
+                        if (storedHash.length() == 64 && storedHash.matches("[0-9a-fA-F]+")) {
+                            String sha256Hash = util.CredentialGenerator.hashPassword(plainPassword);
+                            return sha256Hash.equals(storedHash);
+                        }
+                        
+                        // Last resort: Plain text comparison (NOT recommended for production)
+                        return plainPassword.equals(storedHash);
+                    }
                 }
             }
         } catch (SQLException e) {

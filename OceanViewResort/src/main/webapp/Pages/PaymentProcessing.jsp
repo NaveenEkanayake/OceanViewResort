@@ -1,4 +1,26 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="jakarta.servlet.http.Cookie" %>
+<%
+    // Check if employee is logged in via cookie
+    boolean isEmployeeLoggedIn = false;
+    String employeeUsername = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("employeeUser".equals(cookie.getName())) {
+                isEmployeeLoggedIn = true;
+                employeeUsername = cookie.getValue();
+                break;
+            }
+        }
+    }
+    
+    // Redirect to MainPage if not authenticated
+    if (!isEmployeeLoggedIn) {
+        response.sendRedirect("MainPage.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>

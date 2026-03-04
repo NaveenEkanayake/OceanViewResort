@@ -4,7 +4,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.Gson;
 import Model.Payment;
@@ -52,7 +54,14 @@ public class PaymentServlet extends HttpServlet {
             // Existing standard actions
             switch (action) {
                 case "getAll":
-                    List<Payment> payments = paymentDao.getAllPayments();
+                    // Get logged-in employee username
+                    String employeeUsername = getEmployeeUsernameFromCookie(request);
+                    List<Payment> payments;
+                    if (employeeUsername != null) {
+                        payments = paymentDao.getPaymentsByCreator(employeeUsername);
+                    } else {
+                        payments = new ArrayList<>();
+                    }
                     response.getWriter().write(gson.toJson(payments));
                     break;
                     
@@ -111,12 +120,16 @@ public class PaymentServlet extends HttpServlet {
     }
 
     private void processPayment(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
         try {
             int reservationId = Integer.parseInt(request.getParameter("reservationId"));
             Reservation reservation = reservationDao.getReservationById(reservationId);
             
             if (reservation == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Reservation not found");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write(gson.toJson(new PaymentResponse(false, "Reservation not found", null)));
                 return;
             }
             
@@ -154,7 +167,17 @@ public class PaymentServlet extends HttpServlet {
                 payment.addExtraNights(Integer.parseInt(request.getParameter("extraNights")));
             }
 
-            boolean success = paymentDao.addPayment(payment);
+            // Get logged-in employee username
+            String createdBy = getEmployeeUsernameFromCookie(request);
+            
+            // Validate that we have an employee username
+            if (createdBy == null || createdBy.trim().isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write(gson.toJson(new PaymentResponse(false, "Employee not authenticated. Please login again.", null)));
+                return;
+            }
+            
+            boolean success = paymentDao.addPayment(payment, createdBy);
             
             if (success) {
                 reservationDao.updateReservationStatus(reservationId, "Paid");
@@ -164,11 +187,17 @@ public class PaymentServlet extends HttpServlet {
                     payment.getTotalAmount(), payment.getPaymentMethod()
                 );
                 
-                response.setContentType("application/json");
                 response.getWriter().write(gson.toJson(new PaymentResponse(true, "Payment processed successfully", payment)));
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write(gson.toJson(new PaymentResponse(false, "Failed to process payment. Please check database connection.", null)));
             }
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(gson.toJson(new PaymentResponse(false, "Invalid payment data: " + e.getMessage(), null)));
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write(gson.toJson(new PaymentResponse(false, "Error: " + e.getMessage(), null)));
         }
     }
 
@@ -215,6 +244,13 @@ public class PaymentServlet extends HttpServlet {
     
     private void getPaymentChartData(String timeframe, HttpServletResponse response) throws IOException {
         try {
+            // Get logged-in employee username
+            String employeeUsername = getEmployeeUsernameFromCookie(request);
+            
+            System.out.println("=== PAYMENT CHART DATA REQUEST ===");
+            System.out.println("Timeframe: " + timeframe);
+            System.out.println("Employee Username from Cookie: " + employeeUsername);
+            
             // Prepare chart data based on timeframe
             ChartDataResult chartData = new ChartDataResult();
             chartData.success = true;
@@ -252,8 +288,8 @@ public class PaymentServlet extends HttpServlet {
                     return;
             }
             
-            // Now populate with actual data from database
-            populateChartDataWithActualData(chartData, timeframe);
+            // Now populate with actual data from database for this employee only
+            populateChartDataWithActualData(chartData, timeframe, employeeUsername);
             
             response.getWriter().write(gson.toJson(chartData));
         } catch (Exception e) {
@@ -261,22 +297,42 @@ public class PaymentServlet extends HttpServlet {
         }
     }
     
-    private void populateChartDataWithActualData(ChartDataResult chartData, String timeframe) {
+    private void populateChartDataWithActualData(ChartDataResult chartData, String timeframe, String employeeUsername) {
         try (java.sql.Connection conn = DB.DBConnect.getConnection()) {
             String sql = "";
+            boolean hasEmployeeFilter = employeeUsername != null && !employeeUsername.isEmpty();
+            
+            System.out.println("Populating chart data - Employee Filter: " + hasEmployeeFilter);
+            System.out.println("SQL will filter by created_by: " + (hasEmployeeFilter ? employeeUsername : "NO FILTER - ALL DATA"));
+            
             switch (timeframe.toLowerCase()) {
                 case "daily":
-                    sql = "SELECT DAYOFWEEK(paymentDate) as dayOfWeek, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEARWEEK(paymentDate, 1) = YEARWEEK(NOW(), 1) GROUP BY DAYOFWEEK(paymentDate) ORDER BY DAYOFWEEK(paymentDate)";
+                    if (hasEmployeeFilter) {
+                        sql = "SELECT DAYOFWEEK(paymentDate) as dayOfWeek, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND created_by = ? AND YEARWEEK(paymentDate, 1) = YEARWEEK(NOW(), 1) GROUP BY DAYOFWEEK(paymentDate) ORDER BY DAYOFWEEK(paymentDate)";
+                    } else {
+                        sql = "SELECT DAYOFWEEK(paymentDate) as dayOfWeek, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEARWEEK(paymentDate, 1) = YEARWEEK(NOW(), 1) GROUP BY DAYOFWEEK(paymentDate) ORDER BY DAYOFWEEK(paymentDate)";
+                    }
                     break;
                 case "weekly":
-                    // Get weekly data for current month (Week 1-4 based on day of month)
-                    sql = "SELECT FLOOR((DAY(paymentDate)-1)/7) + 1 as weekNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEAR(paymentDate) = YEAR(NOW()) AND MONTH(paymentDate) = MONTH(NOW()) GROUP BY FLOOR((DAY(paymentDate)-1)/7) + 1 ORDER BY weekNum";
+                    if (hasEmployeeFilter) {
+                        sql = "SELECT FLOOR((DAY(paymentDate)-1)/7) + 1 as weekNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND created_by = ? AND YEAR(paymentDate) = YEAR(NOW()) AND MONTH(paymentDate) = MONTH(NOW()) GROUP BY FLOOR((DAY(paymentDate)-1)/7) + 1 ORDER BY weekNum";
+                    } else {
+                        sql = "SELECT FLOOR((DAY(paymentDate)-1)/7) + 1 as weekNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEAR(paymentDate) = YEAR(NOW()) AND MONTH(paymentDate) = MONTH(NOW()) GROUP BY FLOOR((DAY(paymentDate)-1)/7) + 1 ORDER BY weekNum";
+                    }
                     break;
                 case "monthly":
-                    sql = "SELECT MONTH(paymentDate) as monthNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEAR(paymentDate) = YEAR(NOW()) GROUP BY MONTH(paymentDate) ORDER BY monthNum";
+                    if (hasEmployeeFilter) {
+                        sql = "SELECT MONTH(paymentDate) as monthNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND created_by = ? AND YEAR(paymentDate) = YEAR(NOW()) GROUP BY MONTH(paymentDate) ORDER BY monthNum";
+                    } else {
+                        sql = "SELECT MONTH(paymentDate) as monthNum, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND YEAR(paymentDate) = YEAR(NOW()) GROUP BY MONTH(paymentDate) ORDER BY monthNum";
+                    }
                     break;
                 case "yearly":
-                    sql = "SELECT YEAR(paymentDate) as year, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true GROUP BY YEAR(paymentDate) ORDER BY year LIMIT 4";
+                    if (hasEmployeeFilter) {
+                        sql = "SELECT YEAR(paymentDate) as year, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true AND created_by = ? GROUP BY YEAR(paymentDate) ORDER BY year LIMIT 4";
+                    } else {
+                        sql = "SELECT YEAR(paymentDate) as year, SUM(totalAmount) as revenue FROM payments WHERE isPaid = true GROUP BY YEAR(paymentDate) ORDER BY year LIMIT 4";
+                    }
                     break;
                 default:
                     return;
@@ -285,10 +341,15 @@ public class PaymentServlet extends HttpServlet {
             // Initialize all data values to 0
             java.util.Arrays.fill(chartData.chartData.data, 0.0);
             
-            try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
-                 java.sql.ResultSet rs = stmt.executeQuery()) {
+            try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+                // Set employee username parameter if filtering
+                if (hasEmployeeFilter) {
+                    stmt.setString(1, employeeUsername);
+                }
                 
-                while (rs.next()) {
+                try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                    
+                    while (rs.next()) {
                     int periodIndex;
                     double revenue = rs.getDouble("revenue");
                     
@@ -323,6 +384,7 @@ public class PaymentServlet extends HttpServlet {
                             break;
                     }
                 }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -338,5 +400,18 @@ public class PaymentServlet extends HttpServlet {
         String[] labels;
         double[] data;
         String label;
+    }
+    
+    // Helper method to get employee username from cookie
+    private String getEmployeeUsernameFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("employeeUser".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

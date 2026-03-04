@@ -1,13 +1,34 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, Model.Reservation, DAO.ReservationDao, DAO.PaymentDao, Model.Payment, java.sql.Connection, DB.DBConnect" %>
+<%@ page import="java.util.List, Model.Reservation, DAO.ReservationDao, DAO.PaymentDao, Model.Payment, java.sql.Connection, DB.DBConnect, jakarta.servlet.http.Cookie" %>
 <%
+    // Check if employee is logged in via cookie
+    boolean isEmployeeLoggedIn = false;
+    String employeeUsername = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("employeeUser".equals(cookie.getName())) {
+                isEmployeeLoggedIn = true;
+                employeeUsername = cookie.getValue();
+                break;
+            }
+        }
+    }
+    
+    // Redirect to MainPage if not authenticated
+    if (!isEmployeeLoggedIn) {
+        response.sendRedirect("MainPage.jsp");
+        return;
+    }
+    
 ReservationDao reservationDao = new ReservationDao();
 PaymentDao paymentDao = new PaymentDao();
 List<Reservation> reservations = null;
 String errorMessage = null;
 
 try {
-    reservations = reservationDao.getAllReservations();
+    // Get only reservations created by this employee
+    reservations = reservationDao.getReservationsByCreator(employeeUsername);
     
     if (reservations != null) {
         for (Reservation res : reservations) {

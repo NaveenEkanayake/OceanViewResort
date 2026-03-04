@@ -20,6 +20,7 @@ public class Payment {
     private Timestamp paymentDate;
     private String guestEmail;
     private boolean isPaid;
+    private String createdBy;
 
     // Default Constructor
     public Payment() {
@@ -147,4 +148,7 @@ public class Payment {
             default: return 0.00;
         }
     }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }

@@ -10,19 +10,24 @@ import Model.RoomStatus;
 public class ReservationDao {
     
     // CREATE: Adds a new reservation
-    public boolean addReservation(Reservation reservation) {
+    public boolean addReservation(Reservation reservation, String createdBy) {
         // First check if status column exists
         try (Connection connection = DBConnect.getConnection()) {
             boolean hasStatusColumn = checkStatusColumnExists(connection);
+            boolean hasCreatedByColumn = checkCreatedByColumnExists(connection);
             
             String sql;
-            if (hasStatusColumn) {
+            if (hasStatusColumn && hasCreatedByColumn) {
+                sql = "INSERT INTO reservations (guestName, address, contactNumber, roomType, checkIn, checkOut, status, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            } else if (hasStatusColumn) {
                 sql = "INSERT INTO reservations (guestName, address, contactNumber, roomType, checkIn, checkOut, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            } else if (hasCreatedByColumn) {
+                sql = "INSERT INTO reservations (guestName, address, contactNumber, roomType, checkIn, checkOut, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)";
             } else {
                 sql = "INSERT INTO reservations (guestName, address, contactNumber, roomType, checkIn, checkOut) VALUES (?, ?, ?, ?, ?, ?)";
             }
             
-            try (PreparedStatement pst = connection.prepareStatement(sql)) {
+            try (PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pst.setString(1, reservation.getGuestName());
                 pst.setString(2, reservation.getAddress());
                 pst.setString(3, reservation.getContactNumber());
@@ -30,8 +35,12 @@ public class ReservationDao {
                 pst.setDate(5, reservation.getCheckIn());
                 pst.setDate(6, reservation.getCheckOut());
                 
+                int paramIndex = 7;
                 if (hasStatusColumn) {
-                    pst.setString(7, "Payment Pending"); // Set initial status
+                    pst.setString(paramIndex++, "Payment Pending"); // Set initial status
+                }
+                if (hasCreatedByColumn) {
+                    pst.setString(paramIndex++, createdBy);
                 }
 
                 return pst.executeUpdate() > 0;
@@ -87,6 +96,56 @@ public class ReservationDao {
         return list;
     }
     
+    // READ: Fetches reservations created by a specific employee
+    public List<Reservation> getReservationsByCreator(String createdBy) {
+        List<Reservation> list = new ArrayList<>();
+        
+        try (Connection connection = DBConnect.getConnection()) {
+            boolean hasStatusColumn = checkStatusColumnExists(connection);
+            boolean hasCreatedByColumn = checkCreatedByColumnExists(connection);
+            
+            if (!hasCreatedByColumn) {
+                // Fallback to getAllReservations if column doesn't exist
+                return getAllReservations();
+            }
+            
+            String sql;
+            if (hasStatusColumn) {
+                sql = "SELECT id, guestName, address, contactNumber, roomType, checkIn, checkOut, status FROM reservations WHERE created_by = ? ORDER BY id DESC";
+            } else {
+                sql = "SELECT id, guestName, address, contactNumber, roomType, checkIn, checkOut FROM reservations WHERE created_by = ? ORDER BY id DESC";
+            }
+
+            try (PreparedStatement pst = connection.prepareStatement(sql)) {
+                pst.setString(1, createdBy);
+                ResultSet rs = pst.executeQuery();
+
+                while (rs.next()) {
+                    Reservation res = new Reservation();
+                    res.setId(rs.getInt("id")); 
+                    res.setGuestName(rs.getString("guestName"));
+                    res.setAddress(rs.getString("address"));
+                    res.setContactNumber(rs.getString("contactNumber"));
+                    res.setRoomType(rs.getString("roomType"));
+                    res.setCheckIn(rs.getDate("checkIn"));
+                    res.setCheckOut(rs.getDate("checkOut"));
+                    
+                    if (hasStatusColumn) {
+                        res.setStatus(rs.getString("status") != null ? rs.getString("status") : "Payment Pending");
+                    } else {
+                        res.setStatus("Payment Pending");
+                    }
+                    
+                    list.add(res);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error fetching reservations by creator: " + e.getMessage());
+        }
+        return list;
+    }
+    
     // Helper method to check if status column exists
     private boolean checkStatusColumnExists(Connection connection) {
         try {
@@ -96,6 +155,19 @@ public class ReservationDao {
             }
         } catch (SQLException e) {
             System.out.println("Error checking status column: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Helper method to check if created_by column exists
+    private boolean checkCreatedByColumnExists(Connection connection) {
+        try {
+            DatabaseMetaData metaData = connection.getMetaData();
+            try (ResultSet rs = metaData.getColumns(null, null, "reservations", "created_by")) {
+                return rs.next(); // Returns true if column exists
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking created_by column: " + e.getMessage());
             return false;
         }
     }

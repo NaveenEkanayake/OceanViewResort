@@ -150,8 +150,9 @@ public class EmployeeServlet extends HttpServlet {
             if (success) {
                 // Send welcome email with login credentials ONLY to Receptionist
                 if ("Receptionist".equalsIgnoreCase(position)) {
-                    String emailContent = createWelcomeEmail(firstName, lastName, username, password);
-                    EmailUtil.sendEmail(email, "Welcome to Ocean View Resort - Your Login Credentials", emailContent);
+                    String emailContent = createWelcomeEmail(firstName, lastName, username, password, position);
+                    String emailSubject = CredentialGenerator.generateCredentialsEmailSubject(firstName);
+                    EmailUtil.sendEmail(email, emailSubject, emailContent);
                     request.setAttribute("toastMessage", "Employee added successfully. Credentials sent to employee email.");
                 } else {
                     request.setAttribute("toastMessage", "Employee added successfully (no login credentials created for this role)");
@@ -370,7 +371,7 @@ public class EmployeeServlet extends HttpServlet {
         return null;
     }
 
-    private String createWelcomeEmail(String firstName, String lastName, String username, String password) {
-        return "<html><body><h2>Welcome!</h2><p>User: " + username + "<br>Pass: " + password + "</p></body></html>";
+    private String createWelcomeEmail(String firstName, String lastName, String username, String password, String position) {
+        return CredentialGenerator.generateCredentialsEmail(firstName, lastName, username, password, position);
     }
 }

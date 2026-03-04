@@ -37,7 +37,7 @@
     <script>
         // Employee Login Form Submission Animation
         document.addEventListener('DOMContentLoaded', function() {
-            const employeeLoginForm = document.querySelector('form[action="LoginServlet"]');
+            const employeeLoginForm = document.querySelector('form[action*="LoginServlet"]');
             
             if (employeeLoginForm) {
                 employeeLoginForm.addEventListener('submit', function(e) {

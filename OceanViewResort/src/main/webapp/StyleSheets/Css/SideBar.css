@@ -53,6 +53,7 @@
 .profile-area { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
 .profile-area i { font-size: 40px; }
 .edit-profile { font-size: 12px; color: #ccc; text-decoration: none; display: block; margin-top: 5px; }
+.username-text { font-size: 14px; color: #fff; font-weight: 600; display: block; margin-top: 8px; }
 
 .nav-menu { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-x: hidden; }
 

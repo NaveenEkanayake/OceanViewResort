@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List, Model.Reservation, DAO.ReservationDao, java.sql.Connection, DB.DBConnect" %>
 <%
+    // Use employeeUsername from parent page (PaymentProcessing.jsp)
     ReservationDao reservationDao = new ReservationDao();
     List<Reservation> reservations = null;
     String errorMessage = null;
@@ -15,9 +16,10 @@
             dbStatus = "Failed to connect";
         }
         
-        reservations = reservationDao.getAllReservations();
+        // Get only reservations created by this employee
+        reservations = reservationDao.getReservationsByCreator(employeeUsername);
         request.setAttribute("reservations", reservations);
-        System.out.println("PaymentReservationTable: Loaded " + (reservations != null ? reservations.size() : 0) + " reservations");
+        System.out.println("PaymentReservationTable: Loaded " + (reservations != null ? reservations.size() : 0) + " reservations for employee: " + employeeUsername);
     } catch (Exception e) {
         errorMessage = e.getMessage();
         System.out.println("Error loading reservations: " + e.getMessage());

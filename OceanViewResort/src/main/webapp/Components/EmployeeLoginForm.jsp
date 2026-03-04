@@ -1,5 +1,5 @@
 <%-- EmployeeLoginForm.jsp --%>
-<form action="LoginServlet" method="POST" class="el-login-form">
+<form action="${pageContext.request.contextPath}/LoginServlet" method="POST" class="el-login-form">
     <div class="el-input-group animate__animated animate__fadeInLeft animate__delay-1s">
         <input type="text" name="username" class="el-input" placeholder="Employee Username" required>
         <i class="fa-solid fa-user"></i>

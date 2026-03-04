@@ -7,10 +7,29 @@
         <button id="toggleBtn" class="btn btn-sm"><i class="fa-solid fa-bars-staggered"></i></button>
     </div>
 
+    <%-- Display logged-in employee username --%>
+    <%@ page import="jakarta.servlet.http.Cookie" %>
     <div class="profile-area">
         <i class="fa-solid fa-circle-user"></i>
         <div class="profile-info">
-            <a href="#" class="edit-profile">Edit Profile</a>
+            <% 
+                // Get username from employeeUser cookie
+                String sidebarUsername = null;
+                Cookie[] sidebarCookies = request.getCookies();
+                if (sidebarCookies != null) {
+                    for (Cookie cookie : sidebarCookies) {
+                        if ("employeeUser".equals(cookie.getName())) {
+                            sidebarUsername = cookie.getValue();
+                            break;
+                        }
+                    }
+                }
+            %>
+            <% if (sidebarUsername != null && !sidebarUsername.isEmpty()) { %>
+                <span class="username-text"><%= sidebarUsername %></span>
+            <% } else { %>
+                <span class="username-text">Guest</span>
+            <% } %>
         </div>
     </div>
 

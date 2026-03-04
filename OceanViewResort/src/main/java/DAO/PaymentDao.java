@@ -9,8 +9,8 @@ import Model.Payment;
 public class PaymentDao {
     
     // CREATE: Add a new payment record
-    public boolean addPayment(Payment payment) {
-        String sql = "INSERT INTO payments (reservationId, guestName, roomType, checkIn, checkOut, nightsStayed, extraNights, roomRatePerNight, roomTotal, extraCharges, totalAmount, paymentMethod, cardLastDigits, paymentDate, guestEmail, isPaid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean addPayment(Payment payment, String createdBy) {
+        String sql = "INSERT INTO payments (reservationId, guestName, roomType, checkIn, checkOut, nightsStayed, extraNights, roomRatePerNight, roomTotal, extraCharges, totalAmount, paymentMethod, cardLastDigits, paymentDate, guestEmail, isPaid, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection connection = DBConnect.getConnection();
              PreparedStatement pst = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -31,6 +31,7 @@ public class PaymentDao {
             pst.setTimestamp(14, payment.getPaymentDate());
             pst.setString(15, payment.getGuestEmail());
             pst.setBoolean(16, payment.isPaid());
+            pst.setString(17, createdBy);
             
             int result = pst.executeUpdate();
             
@@ -44,7 +45,12 @@ public class PaymentDao {
                 return true;
             }
         } catch (SQLException e) {
+            System.err.println("=== PAYMENT INSERT ERROR ===");
+            System.err.println("SQL Error: " + e.getMessage());
+            System.err.println("SQL State: " + e.getSQLState());
+            System.err.println("Error Code: " + e.getErrorCode());
             e.printStackTrace();
+            // Don't re-throw, just return false and let servlet handle the failure
         }
         return false;
     }
@@ -59,31 +65,58 @@ public class PaymentDao {
              ResultSet rs = pst.executeQuery()) {
             
             while (rs.next()) {
-                Payment payment = new Payment();
-                payment.setId(rs.getInt("id"));
-                payment.setReservationId(rs.getInt("reservationId"));
-                payment.setGuestName(rs.getString("guestName"));
-                payment.setRoomType(rs.getString("roomType"));
-                payment.setCheckIn(rs.getString("checkIn"));
-                payment.setCheckOut(rs.getString("checkOut"));
-                payment.setNightsStayed(rs.getInt("nightsStayed"));
-                payment.setExtraNights(rs.getInt("extraNights"));
-                payment.setRoomRatePerNight(rs.getDouble("roomRatePerNight"));
-                payment.setRoomTotal(rs.getDouble("roomTotal"));
-                payment.setExtraCharges(rs.getDouble("extraCharges"));
-                payment.setTotalAmount(rs.getDouble("totalAmount"));
-                payment.setPaymentMethod(rs.getString("paymentMethod"));
-                payment.setCardLastDigits(rs.getString("cardLastDigits"));
-                payment.setPaymentDate(rs.getTimestamp("paymentDate"));
-                payment.setGuestEmail(rs.getString("guestEmail"));
-                payment.setPaid(rs.getBoolean("isPaid"));
-                
+                Payment payment = mapResultSetToPayment(rs);
                 payments.add(payment);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return payments;
+    }
+    
+    // READ: Get payments created by a specific employee
+    public List<Payment> getPaymentsByCreator(String createdBy) {
+        List<Payment> payments = new ArrayList<>();
+        String sql = "SELECT * FROM payments WHERE created_by = ? ORDER BY paymentDate DESC";
+        
+        try (Connection connection = DBConnect.getConnection();
+             PreparedStatement pst = connection.prepareStatement(sql)) {
+            
+            pst.setString(1, createdBy);
+            ResultSet rs = pst.executeQuery();
+            
+            while (rs.next()) {
+                Payment payment = mapResultSetToPayment(rs);
+                payments.add(payment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return payments;
+    }
+    
+    // Helper method to map ResultSet to Payment object
+    private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
+        Payment payment = new Payment();
+        payment.setId(rs.getInt("id"));
+        payment.setReservationId(rs.getInt("reservationId"));
+        payment.setGuestName(rs.getString("guestName"));
+        payment.setRoomType(rs.getString("roomType"));
+        payment.setCheckIn(rs.getString("checkIn"));
+        payment.setCheckOut(rs.getString("checkOut"));
+        payment.setNightsStayed(rs.getInt("nightsStayed"));
+        payment.setExtraNights(rs.getInt("extraNights"));
+        payment.setRoomRatePerNight(rs.getDouble("roomRatePerNight"));
+        payment.setRoomTotal(rs.getDouble("roomTotal"));
+        payment.setExtraCharges(rs.getDouble("extraCharges"));
+        payment.setTotalAmount(rs.getDouble("totalAmount"));
+        payment.setPaymentMethod(rs.getString("paymentMethod"));
+        payment.setCardLastDigits(rs.getString("cardLastDigits"));
+        payment.setPaymentDate(rs.getTimestamp("paymentDate"));
+        payment.setGuestEmail(rs.getString("guestEmail"));
+        payment.setPaid(rs.getBoolean("isPaid"));
+        payment.setCreatedBy(rs.getString("created_by"));
+        return payment;
     }
     
     // READ: Get payment by ID

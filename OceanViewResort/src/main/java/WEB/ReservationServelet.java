@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import Model.Reservation;
 import Model.RoomStatus;
@@ -71,7 +72,16 @@ public class ReservationServelet extends HttpServlet {
 
         // 3. Handle AJAX Fetch Data action (For the Table UI)
         else if ("fetchData".equals(action)) {
-            List<Reservation> reservations = dao.getAllReservations();
+            // Get logged-in employee username
+            String employeeUsername = getEmployeeUsernameFromCookie(request);
+            
+            // Get reservations created by this employee only
+            List<Reservation> reservations;
+            if (employeeUsername != null) {
+                reservations = dao.getReservationsByCreator(employeeUsername);
+            } else {
+                reservations = new ArrayList<>();
+            }
             
             StringBuilder json = new StringBuilder("[");
             for (int i = 0; i < reservations.size(); i++) {
@@ -123,12 +133,15 @@ public class ReservationServelet extends HttpServlet {
                 Date.valueOf(request.getParameter("checkOut"))
             );
 
+            // Get logged-in employee username
+            String createdBy = getEmployeeUsernameFromCookie(request);
+
             boolean success;
             if (idParam != null && !idParam.trim().isEmpty()) {
                 res.setId(Integer.parseInt(idParam));
                 success = dao.updateReservation(res);
             } else {
-                success = dao.addReservation(res);
+                success = dao.addReservation(res, createdBy);
             }
 
             if (success) {
@@ -148,5 +161,18 @@ public class ReservationServelet extends HttpServlet {
         if ("Double Room".equals(type)) return 15;
         if ("Ocean Suite".equals(type)) return 5;
         return 0;
+    }
+    
+    // Helper method to get employee username from cookie
+    private String getEmployeeUsernameFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("employeeUser".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
