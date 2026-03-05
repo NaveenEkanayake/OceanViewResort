@@ -57,8 +57,10 @@
                 </li>
             </ul>
         </li>
+    </ul>
 
-    <div class="admin-logout-box">
+    <!-- Logout button at the bottom -->
+    <div class="admin-logout-box mt-auto pt-3 border-top border-white border-opacity-25">
         <a href="${pageContext.request.contextPath}/AdminServlet?action=logout" class="admin-link-item text-danger">
             <i class="fa-solid fa-right-from-bracket admin-icon"></i>
             <span class="admin-link-text">Logout</span>

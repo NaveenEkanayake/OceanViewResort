@@ -69,12 +69,6 @@
                 <span class="link-text">Calculate Bill</span>
             </a>
         </li>
-        <li>
-            <a href="#" class="nav-link-item">
-                <i class="fa-solid fa-circle-question"></i>
-                <span class="link-text">Help Section</span>
-            </a>
-        </li>
     </ul>
 
     <div class="logout-box">

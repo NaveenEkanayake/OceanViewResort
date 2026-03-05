@@ -56,8 +56,8 @@ public class LoginServlet extends HttpServlet {
             employeeCookie.setPath("/"); 
             response.addCookie(employeeCookie);
             
-            // Redirect to Employee Dashboard with success message
-            response.sendRedirect("Pages/EmployeeDashboard.jsp?success=login");
+            // Redirect to Employee Dashboard with success message and help section notification
+            response.sendRedirect("Pages/EmployeeDashboard.jsp?success=login&showHelp=true");
         } else {
             // Fail: Error parameter
             response.sendRedirect("Pages/EmployeeLogin.jsp?error=login_fail");

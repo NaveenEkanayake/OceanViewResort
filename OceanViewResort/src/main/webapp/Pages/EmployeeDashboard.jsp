@@ -99,6 +99,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('success');
+            const showHelpParam = urlParams.get('showHelp');
             
             if (successMessage === 'login') {
                 const toastElement = document.getElementById('loginSuccessToast');
@@ -108,7 +109,59 @@
                 // Clean up URL without reload
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
+            
+            // Show help modal on first login
+            if (showHelpParam === 'true') {
+                var helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+                setTimeout(function() {
+                    helpModal.show();
+                }, 1000); // Show after toast
+                
+                // Clean up URL without reload
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
+    
+    <%-- Help Modal for First Login --%>
+    <% String showHelp = request.getParameter("showHelp");
+       if ("true".equals(showHelp)) { %>
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="helpModalLabel">
+                        <i class="fas fa-user-circle me-2"></i>Welcome to Ocean View Resort Employee Portal
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Your Daily Workflow:</h6>
+                        <ol class="mb-0">
+                            <li><strong>Make Reservation:</strong> Create new bookings for guests (Single/Double/Ocean Suite)</li>
+                            <li><strong>View Reservations:</strong> See ONLY your own reservations in real-time</li>
+                            <li><strong>Update/Delete:</strong> Modify or cancel your reservations as needed</li>
+                            <li><strong>Calculate Bill:</strong> Process payments (Cash/Card) with extra charges for amenities</li>
+                        </ol>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Notes:</h6>
+                        <ul class="mb-0">
+                            <li>You can only view and manage reservations YOU created</li>
+                            <li>Payment statistics show YOUR personal performance only</li>
+                            <li>Always send invoice emails after successful payment</li>
+                            <li>Extra charges apply for: Gym, Mini-fridge, Spa, Room Service, etc.</li>
+                        </ul>
+                    </div>
+                    <p class="text-muted mt-3">Need more help? Click the "Help" button in the sidebar anytime!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
 </body>
 </html>

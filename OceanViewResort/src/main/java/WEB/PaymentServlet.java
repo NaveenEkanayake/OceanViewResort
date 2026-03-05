@@ -84,7 +84,7 @@ public class PaymentServlet extends HttpServlet {
                                 
                 case "getPaymentStats":
                     String timeframe = request.getParameter("timeframe");
-                    getPaymentChartData(timeframe, response);
+                    getPaymentChartData(request, timeframe, response);
                     break;
                                 
                 default:
@@ -242,7 +242,7 @@ public class PaymentServlet extends HttpServlet {
         }
     }
     
-    private void getPaymentChartData(String timeframe, HttpServletResponse response) throws IOException {
+    private void getPaymentChartData(HttpServletRequest request, String timeframe, HttpServletResponse response) throws IOException {
         try {
             // Get logged-in employee username
             String employeeUsername = getEmployeeUsernameFromCookie(request);
@@ -293,6 +293,9 @@ public class PaymentServlet extends HttpServlet {
             
             response.getWriter().write(gson.toJson(chartData));
         } catch (Exception e) {
+            System.err.println("=== PAYMENT CHART DATA ERROR ===");
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error getting chart data: " + e.getMessage());
         }
     }
@@ -405,13 +408,21 @@ public class PaymentServlet extends HttpServlet {
     // Helper method to get employee username from cookie
     private String getEmployeeUsernameFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
+        System.out.println("Getting cookies from request...");
         if (cookies != null) {
+            System.out.println("Found " + cookies.length + " cookies");
             for (Cookie cookie : cookies) {
+                System.out.println("Cookie: " + cookie.getName() + " = " + cookie.getValue());
                 if ("employeeUser".equals(cookie.getName())) {
-                    return cookie.getValue();
+                    String value = cookie.getValue();
+                    System.out.println("Found employeeUser cookie: " + value);
+                    return value;
                 }
             }
+        } else {
+            System.out.println("No cookies found in request!");
         }
+        System.out.println("Returning null for employee username");
         return null;
     }
 }

@@ -65,7 +65,8 @@ public class AdminLoginServlet extends HttpServlet {
             adminCookie.setPath("/"); 
             response.addCookie(adminCookie);
             
-            response.sendRedirect("Pages/AdminLogin.jsp?success=login");
+            // Redirect to Admin Dashboard with success message and help section notification
+            response.sendRedirect("Pages/AdminDashboard.jsp?success=login&showHelp=true");
         } else {
             // Fail: Error parameter
             response.sendRedirect("Pages/AdminLogin.jsp?error=login_fail");
