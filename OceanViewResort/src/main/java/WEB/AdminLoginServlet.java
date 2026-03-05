@@ -1,6 +1,9 @@
 package WEB;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.Cookie;
@@ -10,11 +13,17 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import DAO.AdminLoginDAO;
 import Model.AdminLogin;
+import DB.DBConnect;
+import util.CredentialEmailUtil;
+import org.mindrot.jbcrypt.BCrypt;
+import com.google.gson.Gson;
 
 @WebServlet("/AdminServlet")
 public class AdminLoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private AdminLoginDAO adminDAO = new AdminLoginDAO();
+    private Map<String, String> otpStore = new HashMap<>();
+    private Gson gson = new Gson();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -34,6 +43,12 @@ public class AdminLoginServlet extends HttpServlet {
                 }
             }
             response.sendRedirect("Pages/AdminLogin.jsp");
+        } else if ("sendOTP".equals(action)) {
+            handleSendOTP(request, response);
+        } else if ("verifyOTP".equals(action)) {
+            handleVerifyOTP(request, response);
+        } else if ("resetPassword".equals(action)) {
+            handleResetPassword(request, response);
         } else {
             response.sendRedirect("Pages/AdminLogin.jsp");
         }
@@ -95,5 +110,197 @@ public class AdminLoginServlet extends HttpServlet {
             // Could be "Username exists" or a DB error
             response.sendRedirect("Pages/AdminLogin.jsp?error=reg_fail");
         }
+    }
+    
+    // Handle Send OTP for Forgot Password
+    private void handleSendOTP(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        String email = request.getParameter("email");
+        
+        try {
+            // Validate email exists in database (check admins table)
+            if (!adminExistsByEmail(email)) {
+                sendErrorResponse(response, false, "No admin found with this email address");
+                return;
+            }
+            
+            // Generate 6-digit OTP
+            String otp = generateOTP();
+            
+            // Store OTP with email
+            otpStore.put(email, otp);
+            
+            System.out.println("Generated OTP for admin " + email + ": " + otp);
+            
+            // Send professional OTP email for ADMIN
+            boolean emailSent = CredentialEmailUtil.sendAdminOTPEmail(email, otp);
+            
+            if (emailSent) {
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("success", true);
+                responseData.put("message", "Verification code sent successfully to your email");
+                responseData.put("otpCode", otp); // REMOVE IN PRODUCTION
+                
+                response.getWriter().write(gson.toJson(responseData));
+            } else {
+                sendErrorResponse(response, false, "Failed to send verification email. Please try again.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(response, false, "Server error: " + e.getMessage());
+        }
+    }
+    
+    // Handle Verify OTP
+    private void handleVerifyOTP(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        String email = request.getParameter("email");
+        String enteredOTP = request.getParameter("otp");
+        
+        try {
+            String storedOTP = otpStore.get(email);
+            
+            if (storedOTP != null && storedOTP.equals(enteredOTP)) {
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("success", true);
+                responseData.put("message", "Verification code validated");
+                response.getWriter().write(gson.toJson(responseData));
+                
+                // Clear OTP after successful verification
+                otpStore.remove(email);
+            } else {
+                sendErrorResponse(response, false, "Invalid verification code");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendErrorResponse(response, false, "Server error: " + e.getMessage());
+        }
+    }
+    
+    // Handle Reset Password
+    private void handleResetPassword(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        String email = request.getParameter("email");
+        String newPassword = request.getParameter("newPassword");
+        
+        System.out.println("=== HANDLE RESET PASSWORD ===");
+        System.out.println("Email: " + email);
+        System.out.println("New Password length: " + (newPassword != null ? newPassword.length() : "NULL"));
+        
+        try {
+            // Get admin by email to find their username
+            String adminUsername = getAdminUsernameByEmail(email);
+            
+            System.out.println("Admin Username from DB: " + adminUsername);
+            
+            if (adminUsername == null) {
+                System.out.println("✗ Admin not found for email: " + email);
+                sendErrorResponse(response, false, "Admin not found");
+                return;
+            }
+            
+            // Hash the new password using BCrypt
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            
+            System.out.println("Hashed Password generated (first 30 chars): " + hashedPassword.substring(0, 30));
+            
+            // Update password in admin_login table using username
+            boolean updated = updateAdminPasswordByUsername(adminUsername, hashedPassword);
+            
+            if (updated) {
+                System.out.println("✓ Password reset SUCCESSFUL");
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("success", true);
+                responseData.put("message", "Password reset successfully");
+                response.getWriter().write(gson.toJson(responseData));
+            } else {
+                System.out.println("✗ Password reset FAILED - database update returned false");
+                sendErrorResponse(response, false, "Failed to update password");
+            }
+        } catch (Exception e) {
+            System.err.println("✗ Exception in handleResetPassword: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(response, false, "Server error: " + e.getMessage());
+        }
+    }
+    
+    // Check if admin exists by email
+    private boolean adminExistsByEmail(String email) throws Exception {
+        // Query admin_login table to check if email exists
+        String sql = "SELECT * FROM admin_login WHERE email = ?";
+        try (java.sql.Connection con = DBConnect.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, email);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+    
+    // Get admin username by email
+    private String getAdminUsernameByEmail(String email) throws Exception {
+        String sql = "SELECT username FROM admin_login WHERE email = ?";
+        try (java.sql.Connection con = DBConnect.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, email);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("username");
+                }
+            }
+        }
+        return null;
+    }
+    
+    // Update password by username
+    private boolean updateAdminPasswordByUsername(String username, String hashedPassword) throws Exception {
+        String sql = "UPDATE admin_login SET password = ? WHERE username = ?";
+        try (java.sql.Connection con = DBConnect.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            System.out.println("=== UPDATING ADMIN PASSWORD ===");
+            System.out.println("Username: " + username);
+            System.out.println("Hashed Password (first 20 chars): " + (hashedPassword != null ? hashedPassword.substring(0, 20) : "NULL"));
+            
+            ps.setString(1, hashedPassword);
+            ps.setString(2, username);
+            
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected);
+            
+            if (rowsAffected > 0) {
+                System.out.println("✓ Password updated successfully for admin: " + username);
+            } else {
+                System.out.println("✗ No rows updated - username may not exist");
+            }
+            
+            return rowsAffected > 0;
+        }
+    }
+    
+    // Generate 6-digit OTP
+    private String generateOTP() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
+    }
+    
+    // Send JSON error response
+    private void sendErrorResponse(HttpServletResponse response, boolean success, String message) throws IOException {
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("success", success);
+        responseData.put("message", message);
+        response.getWriter().write(gson.toJson(responseData));
     }
 }

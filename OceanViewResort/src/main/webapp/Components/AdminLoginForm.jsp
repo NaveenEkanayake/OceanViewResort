@@ -13,4 +13,10 @@
     <%-- Reusing the modular button logic --%>
     <% request.setAttribute("btnLabel", "Login to Portal"); %>
     <%@ include file="AdminLoginBtn.jsp" %>
+    
+    <div class="mt-3 text-center">
+        <a href="AdminForgotPassword.jsp" class="al-forgot-link">
+            <i class="fa-solid fa-key me-1"></i> Forgot Password?
+        </a>
+    </div>
 </form>

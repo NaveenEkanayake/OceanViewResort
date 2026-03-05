@@ -60,24 +60,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/StyleSheets/Js/MainSideBar.js"></script>
     <script>
-        // Show toast notifications based on URL parameters
-        document.addEventListener('DOMContentLoaded', function() {
+        // Immediate check and show toast as soon as DOM is ready
+        (function() {
             const urlParams = new URLSearchParams(window.location.search);
             const errorParam = urlParams.get('error');
             const successParam = urlParams.get('success');
             
+            console.log('=== LOGIN PAGE LOADED ===');
+            console.log('URL Params:', { error: errorParam, success: successParam });
+            
             // Show error toast if login failed
             if (errorParam === 'login_fail') {
-                const loginErrorToast = new bootstrap.Toast(document.getElementById('loginErrorToast'));
-                loginErrorToast.show();
+                console.log('Error parameter detected, looking for toast element...');
+                const loginErrorToastEl = document.getElementById('loginErrorToast');
+                if (loginErrorToastEl) {
+                    console.log('✓ Error toast element found, initializing...');
+                    // Initialize and show immediately
+                    const loginErrorToast = new bootstrap.Toast(loginErrorToastEl, {
+                        delay: 5000,
+                        animation: true
+                    });
+                    console.log('✓ Showing error toast now...');
+                    loginErrorToast.show();
+                } else {
+                    console.error('✗ Error toast element NOT found in DOM');
+                }
             }
             
-            // Show success toast if login succeeded (optional - for better UX)
+            // Show success toast if login succeeded
             if (successParam === 'login') {
-                const loginSuccessToast = new bootstrap.Toast(document.getElementById('loginSuccessToast'));
-                loginSuccessToast.show();
+                console.log('Success parameter detected');
+                const loginSuccessToastEl = document.getElementById('loginSuccessToast');
+                if (loginSuccessToastEl) {
+                    const loginSuccessToast = new bootstrap.Toast(loginSuccessToastEl, {
+                        delay: 3000,
+                        animation: true
+                    });
+                    loginSuccessToast.show();
+                }
             }
-        });
+        })();
         
         // Employee Login Form Submission Animation
         document.addEventListener('DOMContentLoaded', function() {
