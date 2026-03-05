@@ -14,6 +14,31 @@
 </head>
 
 <body class="el-login-body">
+    <!-- Toast Container for Login Messages -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+        <!-- Error Toast -->
+        <div id="loginErrorToast" class="toast align-items-center text-white bg-danger border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center py-3">
+                    <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                    <span id="loginErrorMessage">Invalid username or password. Please try again.</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        
+        <!-- Success Toast -->
+        <div id="loginSuccessToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center py-3">
+                    <i class="fa-solid fa-check-circle me-2 fs-5"></i>
+                    <span>Welcome back! Login successful.</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <div class="container d-flex justify-content-center align-items-center">
         <div class="el-glass-card animate__animated animate__zoomIn">
             <div class="mb-4">
@@ -33,8 +58,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../StyleSheets/Js/MainSideBar.js"></script>
+    <script src="${pageContext.request.contextPath}/StyleSheets/Js/MainSideBar.js"></script>
     <script>
+        // Show toast notifications based on URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorParam = urlParams.get('error');
+            const successParam = urlParams.get('success');
+            
+            // Show error toast if login failed
+            if (errorParam === 'login_fail') {
+                const loginErrorToast = new bootstrap.Toast(document.getElementById('loginErrorToast'));
+                loginErrorToast.show();
+            }
+            
+            // Show success toast if login succeeded (optional - for better UX)
+            if (successParam === 'login') {
+                const loginSuccessToast = new bootstrap.Toast(document.getElementById('loginSuccessToast'));
+                loginSuccessToast.show();
+            }
+        });
+        
         // Employee Login Form Submission Animation
         document.addEventListener('DOMContentLoaded', function() {
             const employeeLoginForm = document.querySelector('form[action*="LoginServlet"]');

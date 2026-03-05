@@ -9,9 +9,10 @@
         <input type="password" name="password" class="el-input" placeholder=" Employee Password" required>
         <i class="fa-solid fa-lock"></i>
     </div>
+    
     <%@ include file="LoginButton.jsp" %>
     
-     <div class="el-reset-container animate__animated animate__fadeInUp animate__delay-1s">
-        <a href="ForgotPassword.jsp" class="el-reset-link">Forgot Password?</a>
+    <div class="el-reset-container animate__animated animate__fadeInUp animate__delay-1s">
+        <a href="EmployeeForgotPassword.jsp" class="el-reset-link">Forgot Password?</a>
     </div>
 </form>
