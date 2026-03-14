@@ -162,4 +162,4 @@ Main system tables:
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/oceanview-resort.git
+[git clone https://github.com/yourusername/oceanview-resort.git](https://github.com/NaveenEkanayake/OceanViewResort.git)
