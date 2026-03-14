@@ -153,7 +153,7 @@ The system provides real-time analytics including:
 
 # 🗄️ Database Structure
 
-MVC Strcture
+MVC Structure
 
 ---
 
@@ -162,4 +162,4 @@ MVC Strcture
 ## 1️⃣ Clone the Repository
 
 ```bash
-[git clone https://github.com/yourusername/oceanview-resort.git](https://github.com/NaveenEkanayake/OceanViewResort.git)
+ git clone https://github.com/NaveenEkanayake/OceanViewResort.git
