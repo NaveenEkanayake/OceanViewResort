@@ -153,7 +153,7 @@ The system provides real-time analytics including:
 
 # 🗄️ Database Structure
 
-Main system tables:
+MVC Strcture
 
 ---
 
